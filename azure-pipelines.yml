@@ -1,0 +1,41 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- bash: |
+    if [ -f extensions.csproj ]
+    then
+        dotnet build extensions.csproj --runtime ubuntu.16.04-x64 --output ./bin
+    fi
+  workingDirectory: $(System.DefaultWorkingDirectory)
+  displayName: 'Build extensions'
+
+- task: UsePythonVersion@0
+  displayName: 'Use Python 3.10'
+  inputs:
+    versionSpec: 3.10 # Functions V2 supports Python 3.6 as of today
+
+- bash: |
+    pip install --target="./.python_packages/lib/site-packages" -r ./requirements.txt
+  workingDirectory: $(System.DefaultWorkingDirectory)
+  displayName: 'Install application dependencies'
+
+- task: ArchiveFiles@2
+  displayName: 'Archive files'
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    includeRootFolder: false
+    archiveType: zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+    replaceExistingArchive: true
+
+- publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+  artifact: drop
