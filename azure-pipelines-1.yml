@@ -59,7 +59,7 @@ stages:
     displayName: Deploy
     environment: 'development'
     pool:
-      vmImage: $(vmImageName)
+     name: my-personal-computer
 
     strategy:
       runOnce:
