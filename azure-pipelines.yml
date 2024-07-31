@@ -6,35 +6,36 @@
 trigger:
 - master
 
-pool: my-personal-computer
+pool: 
+  name: my-personal-computer
 
 steps:
-- bash: |
-    if [ -f extensions.csproj ]
-    then
-        dotnet build extensions.csproj --runtime ubuntu.16.04-x64 --output ./bin
-    fi
-  workingDirectory: $(System.DefaultWorkingDirectory)
-  displayName: 'Build extensions'
+  - script: |
+      if (Test-Path 'extensions.csproj') {
+          dotnet build extensions.csproj --runtime win-x64 --output ./bin
+      }
+    displayName: 'Build extensions'
+    # No shell property needed; defaults to PowerShell on Windows agents
 
-- task: UsePythonVersion@0
-  displayName: 'Use Python 3.10'
-  inputs:
-    versionSpec: 3.10 # Functions V2 supports Python 3.6 as of today
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.10'
+    inputs:
+      versionSpec: 3.10 # Functions V2 supports Python 3.6 as of today
 
-- bash: |
-    pip install --target="./.python_packages/lib/site-packages" -r ./requirements.txt
-  workingDirectory: $(System.DefaultWorkingDirectory)
-  displayName: 'Install application dependencies'
+  - script: |
+      python -m pip install --target="./.python_packages/lib/site-packages" -r ./requirements.txt
+    workingDirectory: $(System.DefaultWorkingDirectory)
+    displayName: 'Install application dependencies'
+    # No shell property needed; defaults to PowerShell on Windows agents
 
-- task: ArchiveFiles@2
-  displayName: 'Archive files'
-  inputs:
-    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
-    includeRootFolder: false
-    archiveType: zip
-    archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-    replaceExistingArchive: true
+  - task: ArchiveFiles@2
+    displayName: 'Archive files'
+    inputs:
+      rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+      includeRootFolder: false
+      archiveType: zip
+      archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      replaceExistingArchive: true
 
-- publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-  artifact: drop
+  - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+    artifact: drop
