@@ -11,12 +11,6 @@ steps:
       )
     displayName: 'Build extensions'
   
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: 3.10
-      architecture: x64
-    displayName: 'Use Python 3.10'
-
   - script: |
       python -m pip install --target="./.python_packages/lib/site-packages" -r ./requirements.txt
     workingDirectory: $(System.DefaultWorkingDirectory)
