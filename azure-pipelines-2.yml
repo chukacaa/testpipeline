@@ -6,7 +6,7 @@ variables:
   azureSubscription: '69507934-94be-4cf7-a2b5-e60fcb3498a5'
 
   # Function app name
-  functionAppName: 'myfunctionapphernan'
+  functionAppName: 'test-func-her'
 
   # Agent VM image name
   vmImageName: 'windows-latest'
